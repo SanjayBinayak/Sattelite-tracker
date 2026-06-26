@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Satellite Viewer</title>
+
+  <style>
+    html,
+    body,
+    #cesiumContainer {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #toolbar {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 100;
+    }
+
+    button {
+      padding: 10px;
+      margin-right: 10px;
+    }
+  </style>
+
+</head>
+
+<body>
+
+<div id="toolbar">
+  <button id="satellites">Satellites</button>
+  <button id="vehicle">Vehicle</button>
+  <button id="clear">Clear</button>
+</div>
+
+<div id="cesiumContainer"></div>
+
+<script type="module" src="/src/main.js"></script>
+
+</body>
+
+</html>

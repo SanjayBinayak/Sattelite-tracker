@@ -1,0 +1,30 @@
+[
+  {
+    "id":"document",
+    "version":"1.0"
+  },
+  {
+    "id":"point",
+
+    "name":"My Satellite",
+
+    "position":{
+      "cartographicDegrees":[
+        77.4126,
+        23.2599,
+        500000
+      ]
+    },
+
+    "point":{
+      "pixelSize":12,
+      "color":{
+        "rgba":[255,0,0,255]
+      }
+    },
+
+    "label":{
+      "text":"Satellite"
+    }
+  }
+]
