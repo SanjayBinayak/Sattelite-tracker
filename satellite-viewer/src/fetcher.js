@@ -16,3 +16,21 @@ export async function getTlesFromPython() {
         return null;
     }
 }
+
+export async function getTleByNorad(noradId) {
+    try {
+        const response = await fetch(`http://localhost:3000/api/tle/${noradId}`);
+
+        if (!response.ok) {
+            const body = await response.json().catch(() => ({}));
+            throw new Error(body.error || `Server responded with status: ${response.status}`);
+        }
+
+        const satellites = await response.json();
+        console.log("received data for NORAD", noradId, satellites);
+        return satellites; // Returns [{ name, line1, line2 }]
+    } catch (error) {
+        console.error(`Failed to fetch TLE for NORAD ${noradId}:`, error);
+        return null;
+    }
+}

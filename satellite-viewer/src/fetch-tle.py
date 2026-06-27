@@ -1,20 +1,28 @@
 from spacetrack import SpaceTrackClient
 import json
-# Login to Space-Track
+import sys
+import os
+
+# Login to Space-Track (credentials read from environment variables)
 st = SpaceTrackClient(
-    identity="binayaksanjay421@gmail.com",
-    password="SRB3bXhU!tK8Y*g"
+    identity=os.environ.get("SPACETRACK_IDENTITY"),
+    password=os.environ.get("SPACETRACK_PASSWORD")
 )
 
-# NORAD IDs you want to track
-norad_ids = [
-    (25544, "ISS"),
-    (20580, "Hubble Space Telescope"),
-    (43013, "NOAA (JPSS-1)"),
-    (49260, "LANDSAT"),
-    (45206, "Starlink 1209"),
-    (4804, "COSMOS 386")
-]
+# If a NORAD ID is passed as a command-line argument, look up just that satellite.
+# Otherwise, fall back to the default tracked list.
+if len(sys.argv) > 1:
+    requested_id = int(sys.argv[1])
+    norad_ids = [(requested_id, f"NORAD {requested_id}")]
+else:
+    norad_ids = [
+        (25544, "ISS"),
+        (20580, "Hubble Space Telescope"),
+        (43013, "NOAA (JPSS-1)"),
+        (49260, "LANDSAT"),
+        (45206, "Starlink 1209"),
+        (4804, "COSMOS 386")
+    ]
 
 satellites = []
 
