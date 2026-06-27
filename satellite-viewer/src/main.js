@@ -17,112 +17,111 @@ viewer.scene.globe.enableLighting = true;
 async function trackLiveSatellite() {
   try {
     console.clear();
-    console.log("Fetching TLE...");
+    console.log("Fetching TLEs...");
 
     viewer.trackedEntity = undefined;
     viewer.entities.removeAll();
     viewer.dataSources.removeAll();
 
-    const tle = await getTlesFromPython();
+    const satellites = await getTlesFromPython();
 
-    console.log("TLE:", tle);
+    console.log("Received:", satellites);
 
-    if (!tle || !tle.line1 || !tle.line2) {
-      console.error("Invalid TLE received.");
+    if (!satellites || satellites.length === 0) {
+      console.error("No satellites received.");
       return;
     }
 
-    const { name, line1, line2 } = tle;
+    let firstEntity = null;
 
-    const satrec = satellite.twoline2satrec(line1, line2);
+    for (const sat of satellites) {
+      if (!sat.line1 || !sat.line2) continue;
 
-    const positionProperty = new Cesium.CallbackProperty((time) => {
-      const date = Cesium.JulianDate.toDate(time);
-
-      const pv = satellite.propagate(satrec, date);
-
-      if (!pv.position) return undefined;
-
-      // Greenwich Mean Sidereal Time
-      const gmst = satellite.gstime(date);
-
-      // Convert ECI -> Geodetic
-      const geodetic = satellite.eciToGeodetic(
-        pv.position,
-        gmst
+      const satrec = satellite.twoline2satrec(
+        sat.line1,
+        sat.line2
       );
 
-      const longitude = Cesium.Math.toDegrees(
-        geodetic.longitude
-      );
+      const norad = sat.line1.substring(2, 7).trim();
 
-      const latitude = Cesium.Math.toDegrees(
-        geodetic.latitude
-      );
+      const positionProperty = new Cesium.CallbackProperty((time) => {
+        const date = Cesium.JulianDate.toDate(time);
 
-      const height = geodetic.height * 1000;
+        const pv = satellite.propagate(satrec, date);
 
-      return Cesium.Cartesian3.fromDegrees(
-        longitude,
-        latitude,
-        height
-      );
-    }, false);
+        if (!pv.position) return undefined;
 
-    const entity = viewer.entities.add({
-      id: "liveSatellite",
+        const gmst = satellite.gstime(date);
 
-      name,
+        const geo = satellite.eciToGeodetic(
+          pv.position,
+          gmst
+        );
 
-      position: positionProperty,
+        return Cesium.Cartesian3.fromDegrees(
+          Cesium.Math.toDegrees(geo.longitude),
+          Cesium.Math.toDegrees(geo.latitude),
+          geo.height * 1000
+        );
+      }, false);
+      const entity = viewer.entities.add({
+        id: norad,
 
-      point: {
-        pixelSize: 12,
-        color: Cesium.Color.RED,
-        outlineColor: Cesium.Color.WHITE,
-        outlineWidth: 2,
-      },
+        name: sat.name,
 
-      label: {
-        text: name,
-        showBackground: true,
-        font: "16px sans-serif",
-        pixelOffset: new Cesium.Cartesian2(0, -25),
-      },
-    });
+        position: positionProperty,
 
-    await viewer.flyTo(entity);
+        point: {
+          pixelSize: 10,
+          color: Cesium.Color.RED,
+          outlineColor: Cesium.Color.WHITE,
+          outlineWidth: 2,
+        },
 
-    viewer.trackedEntity = entity;
+        label: {
+          text: sat.name,
+          font: "14px sans-serif",
+          showBackground: true,
+          pixelOffset: new Cesium.Cartesian2(0, -20),
+        },
+      });
 
-    console.log("Satellite created.");
+      if (!firstEntity) {
+        firstEntity = entity;
+      }
+    }
 
+    if (firstEntity) {
+      await viewer.flyTo(viewer.entities);
+      viewer.trackedEntity = firstEntity;
+    }
+
+    console.log(`${viewer.entities.values.length} satellites loaded.`);
+  } catch (err) {
+    console.error("Error:", err);
+  }
+}
+
+async function loadCZML(file) {
+  try {
+    viewer.trackedEntity = undefined;
+    viewer.entities.removeAll();
+    viewer.dataSources.removeAll();
+
+    const ds = await Cesium.CzmlDataSource.load(file);
+
+    viewer.dataSources.add(ds);
+
+    await viewer.flyTo(ds);
   } catch (err) {
     console.error(err);
   }
 }
 
-async function loadCZML(file) {
-  viewer.trackedEntity = undefined;
-  viewer.entities.removeAll();
-  viewer.dataSources.removeAll();
-
-  const ds = await Cesium.CzmlDataSource.load(file);
-
-  viewer.dataSources.add(ds);
-
-  viewer.flyTo(ds);
-}
 
 document
   .getElementById("satellites")
   .addEventListener("click", trackLiveSatellite);
-
-document
-  .getElementById("vehicle")
-  .addEventListener("click", () => {
-    loadCZML("/czml/Vehicle.czml");
-  });
 
 document
   .getElementById("clear")

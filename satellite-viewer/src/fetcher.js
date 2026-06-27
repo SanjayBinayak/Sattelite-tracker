@@ -8,8 +8,9 @@ export async function getTlesFromPython() {
             throw new Error(`Server responded with status: ${response.status}`);
         }
         
-        const data = await response.json();
-        return data; // Returns { name, line1, line2 }
+        const satellite = await response.json();
+        console.log("recieved data", satellite)
+        return satellite; // Returns { name, line1, line2 }
     } catch (error) {
         console.error("Failed to fetch TLE from local server:", error);
         return null;

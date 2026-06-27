@@ -1,14 +1,42 @@
 from spacetrack import SpaceTrackClient
+import json
+# Login to Space-Track
+st = SpaceTrackClient(
+    identity="binayaksanjay421@gmail.com",
+    password="SRB3bXhU!tK8Y*g"
+)
 
-# Initialize the client with your Space-Track credentials
-st = SpaceTrackClient(identity="binayaksanjay421@gmail.com", password="SRB3bXhU!tK8Y*g")
+# NORAD IDs you want to track
+norad_ids = [
+    (25544, "ISS"),
+    (20580, "Hubble Space Telescope"),
+    (43013, "NOAA (JPSS-1)"),
+    (49260, "LANDSAT"),
+    (45206, "Starlink 1209"),
+    (4804, "COSMOS 386")
+]
 
-# Fetch the latest TLE for the ISS (NORAD ID: 25544)
-# The "gp" (General Perturbations) method retrieves the latest active element sets
-tle_data = st.gp(norad_cat_id=25544, format="tle")
+satellites = []
 
-import sys
+for norad_id, names in norad_ids:
+    try:
+        tle = st.gp(norad_cat_id=norad_id, format="tle")
 
-# Simply print the raw TLE text data to stdout at the end of your script
-print(tle_data)
-sys.exit(0)
+        lines = [
+            line.strip()
+            for line in tle.splitlines()
+            if line.strip()
+        ]
+
+        if len(lines) == 2:
+            satellites.append({
+                "name": names,
+                "line1": lines[0],
+                "line2": lines[1]
+            })
+
+    except Exception as e:
+        print(f"Failed to fetch {norad_id}: {e}")
+
+
+print(json.dumps(satellites))
