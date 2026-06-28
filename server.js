@@ -1,17 +1,25 @@
 import express from "express";
 import { spawn } from "child_process";
-import "dotenv/config";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+
+// Render builds the frontend into ./dist (vite build output)
+const DIST_DIR = path.join(__dirname, "dist");
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     next();
 });
 
+app.use(express.static(DIST_DIR));
+
 app.get("/api/tle", (req, res) => {
-    const pythonProcess = spawn("python", ["-u", "./src/fetch-tle.py"]);
+    const pythonProcess = spawn("python3", ["-u", "./src/fetch-tle.py"]);
 
     let stdout = "";
     let stderr = "";
@@ -53,7 +61,7 @@ app.get("/api/tle/:norad", (req, res) => {
         return res.status(400).json({ error: "NORAD ID must be numeric" });
     }
 
-    const pythonProcess = spawn("python", ["-u", "./src/fetch-tle.py", norad]);
+    const pythonProcess = spawn("python3", ["-u", "./src/fetch-tle.py", norad]);
 
     let stdout = "";
     let stderr = "";
@@ -94,6 +102,11 @@ app.get("/api/tle/:norad", (req, res) => {
 });
 
 
-app.listen(PORT, () => {
-    console.log(`Backend running at http://localhost:${PORT}/api/tle`);
+// Serve the SPA for any non-API route
+app.get(/^\/(?!api).*/, (req, res) => {
+    res.sendFile(path.join(DIST_DIR, "index.html"));
+});
+
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Backend running at http://0.0.0.0:${PORT}/api/tle`);
 });
