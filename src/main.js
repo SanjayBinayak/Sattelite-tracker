@@ -3,7 +3,9 @@ import * as Cesium from "cesium";
 import * as satellite from "satellite.js";
 import { getTlesFromPython, getTleByNorad } from "./fetcher.js";
 
-Cesium.Ion.defaultAccessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJkMzQ2OTJkOC0xZDcxLTQ2MDUtODI3NC0xM2JhMTUxMTFlMzIiLCJpZCI6NDQ5MjcyLCJzdWIiOiJTYW5qYXliaW5heWFrNDIxIiwiaXNzIjoiaHR0cHM6Ly9hcGkuY2VzaXVtLmNvbSIsImF1ZCI6IlVudGl0bGVkIiwiaWF0IjoxNzgyNjI1NTM0fQ.XRNXigCXB5t9Qvgg5omH6-i14JEkvbehGGHOUsCSSUM;
+const token = `${import.meta.env.VITE_CESIUM_ION_TOKEN}`;
+
+Cesium.Ion.defaultAccessToken = token;
 
 const viewer = new Cesium.Viewer("cesiumContainer", {
   animation: true,
