@@ -18,7 +18,7 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "node-fetch-cookies": "^2.1.1",
-    "satellite.js": "^7.0.1",
+    "satellite.js": "^5.0.0",
     "tough-cookie": "^6.0.1",
     "vite-plugin-cesium": "^1.2.23"
   }

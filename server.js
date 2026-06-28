@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Render builds the frontend into ./dist (vite build output)
 const DIST_DIR = path.join(__dirname, "dist");
