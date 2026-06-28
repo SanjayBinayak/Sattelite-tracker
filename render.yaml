@@ -9,6 +9,8 @@ services:
         sync: false
       - key: SPACETRACK_PASSWORD
         sync: false
+      - key: VITE_CESIUM_ION_TOKEN
+        sync: false
       - key: NODE_ENV
         value: production
     healthCheckPath: /

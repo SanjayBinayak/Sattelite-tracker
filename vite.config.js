@@ -1,6 +1,8 @@
 import { defineConfig } from "vite";
+import cesium from "vite-plugin-cesium";
 
 export default defineConfig({
+  plugins: [cesium()],
   worker: {
     // satellite.js's WASM pthreads build uses top-level `await` inside its
     // worker file. The default 'iife' worker format doesn't support that,

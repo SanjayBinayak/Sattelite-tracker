@@ -3,7 +3,7 @@ import * as Cesium from "cesium";
 import * as satellite from "satellite.js";
 import { getTlesFromPython, getTleByNorad } from "./fetcher.js";
 
-window.CESIUM_BASE_URL = "/Cesium";
+Cesium.Ion.defaultAccessToken = import.meta.env.VITE_CESIUM_ION_TOKEN;
 
 const viewer = new Cesium.Viewer("cesiumContainer", {
   animation: true,
